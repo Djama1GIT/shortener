@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/redis/go-redis/v9"
-	"golang.org/x/crypto/acme/autocert"
 )
 
 var redisClient *redis.Client
@@ -94,7 +93,12 @@ func main() {
 	mux.HandleFunc("/agreement/", agreement)
 	mux.HandleFunc("/shortener/", shortener)
 
-	log.Fatal(http.Serve(autocert.NewListener(HOST), mux))
+	server := &http.Server{
+		Addr:    "212.109.218.42:443",
+		Handler: mux,
+	}
+
+	log.Fatal(server.ListenAndServeTLS("/etc/letsencrypt/live/ama1.ru/fullchain.pem", "/etc/letsencrypt/live/ama1.ru/privkey.pem"))
 	log.Println("Server started")
 
 	<-make(chan struct{})

@@ -3,7 +3,7 @@ $(document).ready(function() {
         e.preventDefault();
         var link = $("#link").val();
         $.ajax({
-            url: "http://ama1.ru/shortener/",
+            url: "https://ama1.ru/shortener/",
             type: "POST",
             data: link,
             success: function(response) {
