@@ -4,23 +4,29 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/redis/go-redis/v9"
 )
 
 var redisClient *redis.Client
+var HOST = "http://127.0.0.1"
 
 func init() {
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "shortener_redis:6379",
 		Password: "",
 		DB:       0,
 	})
 }
 
 func shortener(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	if r.Method != "POST" {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 	} else {
@@ -31,10 +37,11 @@ func shortener(w http.ResponseWriter, r *http.Request) {
 		}
 		if string(body) == "" {
 			http.Error(w, "Invalid link", http.StatusTeapot)
+			return
 		}
 		defer r.Body.Close()
 		// Process the request body and generate the shortened URL
-		shortURL := generateShortURL(string(body))
+		shortURL := generateShortURL(string(strings.Trim(string(body), " ")))
 
 		// Return the shortened URL as the response
 		fmt.Fprintf(w, shortURL)
@@ -42,6 +49,8 @@ func shortener(w http.ResponseWriter, r *http.Request) {
 }
 
 func home_page(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	if r.URL.Path != "/" {
 		ctx := context.Background()
 		shortedURL := r.URL.Path[1:]
@@ -49,8 +58,10 @@ func home_page(w http.ResponseWriter, r *http.Request) {
 		longURL, err := redisClient.Get(ctx, shortedURL).Result()
 		if err != nil {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
-			fmt.Println(shortedURL, longURL)
 			return
+		}
+		if !strings.HasPrefix(longURL, "http://") && !strings.HasPrefix(longURL, "https://") {
+			longURL = "http://" + longURL
 		}
 
 		http.Redirect(w, r, longURL, http.StatusSeeOther)
@@ -65,7 +76,7 @@ func agreement(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fs := http.FileServer(http.Dir("templates/static"))
+	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.HandleFunc("/", home_page)
@@ -73,27 +84,46 @@ func main() {
 	http.HandleFunc("/shortener/", shortener)
 
 	go func() {
-		if err := http.ListenAndServe(":8083", nil); err != nil {
-			panic(err)
+		if err := http.ListenAndServe(":80", nil); err != nil {
+			log.Fatal("HTTP server error: ", err)
 		}
 	}()
+
+	log.Println("Server started on port 80")
 
 	<-make(chan struct{})
 }
 
 func generateShortURL(longURL string) string {
 	ctx := context.Background()
-
-	shortedURL := shortenerURL(longURL)
-	err := redisClient.Set(ctx, shortedURL, longURL, 0).Err()
-	if err != nil {
-		return ""
+	if validateURL(longURL) != "" {
+		for {
+			shortedURL := shortURL()
+			_, err := redisClient.Get(ctx, shortedURL).Result()
+			if err != nil {
+				err := redisClient.Set(ctx, shortedURL, longURL, 0).Err()
+				if err != nil {
+					log.Println("Error saving URL to Redis:", err)
+					return ""
+				}
+				return HOST + "/" + shortedURL
+			}
+		}
 	}
-
-	return "http://127.0.0.1:8083/" + shortedURL
+	return ""
 }
 
-func shortenerURL(longURL string) string {
+func validateURL(URL string) string {
+	pattern := `^((http|https)://)?[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(\/\S*)?$`
+	match, _ := regexp.MatchString(pattern, URL)
+	if match {
+		return URL
+	} else {
+		return ""
+	}
+}
+
+func shortURL() string {
 	alphabet := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	shortedURL := make([]rune, 5)
 
