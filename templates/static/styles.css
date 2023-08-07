@@ -17,7 +17,7 @@ a {
 }
 .header {
     padding: 0;
-    height: 50dvh;
+    height: 30em;
     top: 0;
     left: 0;
     right: 0;
@@ -53,6 +53,9 @@ a {
 #shortened-link {
     color: #447;
     text-decoration: underline;
+}
+#shortened-link-alert {
+    color: #447;
 }
 #shortened-link:hover {
     cursor: pointer;
