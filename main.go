@@ -11,11 +11,15 @@ import (
 	"strings"
 
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 var redisClient *redis.Client
-var HOST = "http://ama1.ru"
+var HOST = "https://ama1.ru"
 
+func redirectTLS(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, HOST+":443"+r.RequestURI, http.StatusMovedPermanently)
+}
 func init() {
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -76,20 +80,22 @@ func agreement(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
-
-	http.HandleFunc("/", home_page)
-	http.HandleFunc("/agreement/", agreement)
-	http.HandleFunc("/shortener/", shortener)
-
 	go func() {
-		if err := http.ListenAndServe("212.109.218.42:80", nil); err != nil {
-			log.Fatal("HTTP server error: ", err)
+		if err := http.ListenAndServe("212.109.218.42:80", http.HandlerFunc(redirectTLS)); err != nil {
+			log.Fatalf("ListenAndServe error: %v", err)
 		}
 	}()
 
-	log.Println("Server started on port 80")
+	mux := http.NewServeMux()
+	fs := http.FileServer(http.Dir("static"))
+	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	mux.HandleFunc("/", home_page)
+	mux.HandleFunc("/agreement/", agreement)
+	mux.HandleFunc("/shortener/", shortener)
+
+	log.Fatal(http.Serve(autocert.NewListener(HOST), mux))
+	log.Println("Server started")
 
 	<-make(chan struct{})
 }
