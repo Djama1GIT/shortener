@@ -14,7 +14,7 @@ import (
 )
 
 var redisClient *redis.Client
-var HOST = "http://127.0.0.1"
+var HOST = "http://ama1.ru"
 
 func init() {
 	redisClient = redis.NewClient(&redis.Options{

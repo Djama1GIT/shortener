@@ -3,16 +3,16 @@ $(document).ready(function() {
         e.preventDefault();
         var link = $("#link").val();
         $.ajax({
-            url: "http://127.0.0.1/shortener/",
+            url: "http://ama1.ru/shortener/",
             type: "POST",
             data: link,
             success: function(response) {
                 $("#shortened-link").text(response);
-                $("#shortened-link-alert").text(response ? "" : "Произошла ошибка, проверьте корректность ссылки.");
+                $("#shortened-link-alert").text(response ? "" : "An error has occurred, check the correctness of the link.");
             },
             error: function(xhr, status, error) {
                 $("#shortened-link").text("");
-                $("#shortened-link-alert").text(error || "Произошла ошибка, проверьте корректность ссылки.");
+                $("#shortened-link-alert").text(error || "An error has occurred, check the correctness of the link.");
             }
         });
     });
