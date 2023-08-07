@@ -3,8 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"">
-    <title>Shortener</title>
+    <title>Shortener!</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#submit").click(function(e) {
+                e.preventDefault();
+                var link = $("#link").val();
+                $.ajax({
+                    url: "http://127.0.0.1:8081/shortener/",
+                    type: "POST",
+                    data: link,
+                    success: function(response) {
+                        $("#shortened-link").text(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+        $(document).ready(function() {
+            $("#shortened-link").click(function() {
+                var linkText = $(this).text();
+                navigator.clipboard.writeText(linkText)
+                    .then(function() {
+                        alert("Link copied to clipboard!");
+                    })
+                    .catch(function(error) {
+                        console.error("Error copying link to clipboard: ", error);
+                    });
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="root">
@@ -12,12 +44,13 @@
             <div class="center">
                 <div class="header-content">
                     <a href="/" class="logo">
-                        <h1>Shortener by GADJIIAVOV</h1>
+                        <h1>Shortener! by GADJIIAVOV</h1>
                     </a>
                     <form action="/form" method="post">
                         <input type="text" name="link" id="link" placeholder="Enter the link here"/>
                         <button type="submit" id="submit">SHORT</button>
                     </form>
+                    <p id="shortened-link"></p>
                 </div>
             </div>
         </div>
@@ -32,12 +65,10 @@
             </div>
 
             <div class="shortener-info center">
-                <h2>About the project</h2>
-                <p>Shortener is a web application written in the Go programming language that allows users to shorten long links into shorter and more convenient ones.</p>
-                <p>The main functionality of the application includes the ability to create short links, save them in a database, and redirect users to them. The application uses Redis as its database for storing information about links.</p>
-                <p>Shortener has a simple and intuitive user interface that allows users to quickly and easily create short links.</p>
-                <p>This project was created as a pet project for learning the Go programming language and its capabilities in web development.</p>
-                <p>It can be used as a basis for creating other projects related to link shortening.</p>
+                <h1>Shortener!</h1>
+                <p>Our free URL shortener tool is the perfect solution for transforming lengthy and unsightly links into concise, memorable, and effortlessly traceable URLs. </p>
+                <p>With our tool, you can conveniently shorten links for an array of purposes across numerous social media platforms, blogs, SMS, email, advertisements, and virtually any platform where you wish to share a link. </p>
+                <p>Our tool seamlessly integrates with all popular platforms.</p>
             </div>
         </div>
         <div class="footer">
