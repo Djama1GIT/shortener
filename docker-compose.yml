@@ -9,6 +9,11 @@ services:
     volumes:
       - redis_data:/data
       - ./redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - mynetwork
+    networks:
+      mynetwork:
+        ipv4_address: 212.109.218.42
 
   server:
     build:
@@ -20,6 +25,17 @@ services:
     restart: always
     depends_on:
       - redis
+    networks:
+      - mynetwork
+    networks:
+      mynetwork:
+        ipv4_address: 212.109.218.42
 
 volumes:
- redis_data:
+  redis_data:
+
+networks:
+  mynetwork:
+    ipam:
+      config:
+        - subnet: 212.109.218.0/24

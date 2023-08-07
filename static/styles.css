@@ -66,6 +66,7 @@ a {
     align-items: center;
 }
 .content {
+    background-color: #fafaff;
     display: flex;
 }
 .shortener-about {
@@ -135,4 +136,112 @@ a {
     text-align: end;
     font-size: 36px;
     font-weight: bold;
+}
+@media (max-width: 1400px) {
+    .content {
+        display: block;
+    }
+    .shortener-about {
+        margin-right: 0.3em;
+        position: relative;
+        width: unset;
+    }
+    .shortener-info {
+        position: relative;
+        width: unset;
+    }
+    #link {
+        width: 50vw;
+    }
+    .footer {
+        height: 10dvh;
+    }
+    
+}
+@media only screen and (max-width: 768px) {
+    .header {
+        height: auto;
+    }
+
+    .header-content {
+        margin-top: 2em;
+        font-size: 24px;
+    }
+
+    #link {
+        width: 90vw;
+    }
+
+    .shortener-about,
+    .shortener-info {
+        width: 100%;
+        max-width: 100%;
+        margin: 0.3em;
+    }
+
+    .email,
+    .github {
+        font-size: 18px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .header-content {
+        margin-top: 1em;
+        font-size: 24px;
+    }
+
+    #link {
+        width: 90vw;
+        height: 2.5em;
+    }
+
+    .shortener-about,
+    .shortener-info {
+        font-size: 18px;
+    }
+    .info {
+        margin-left: 0;
+    }
+    .email,
+    .github {
+        font-size: 12px;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+    }
+    #submit {
+        margin-top: 10px;
+        height: 3em;
+    }
+}
+
+@media only screen and (max-width: 360px) {
+    .header-content {
+        margin-top: 1em;
+        font-size: 18px;
+    }
+
+    #link {
+        width: 90vw;
+    }
+
+    .shortener-about,
+    .shortener-info {
+        font-size: 10px;
+        width: 87vw;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+    h2 {
+        font-size: 14px;
+    }
+    h3 {
+        font-size: 12px;
+    }
+    #submit {
+        height: 2.5em;
+    }
 }

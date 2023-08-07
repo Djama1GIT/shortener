@@ -18,7 +18,7 @@ var HOST = "http://ama1.ru"
 
 func init() {
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "shortener_redis:6379",
+		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -84,7 +84,7 @@ func main() {
 	http.HandleFunc("/shortener/", shortener)
 
 	go func() {
-		if err := http.ListenAndServe(":80", nil); err != nil {
+		if err := http.ListenAndServe("212.109.218.42:80", nil); err != nil {
 			log.Fatal("HTTP server error: ", err)
 		}
 	}()
